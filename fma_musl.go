@@ -29,9 +29,9 @@ import (
 	"math/bits"
 )
 
-// Mul64 returns the most significant and least significant
+// mul64 returns the most significant and least significant
 // 64 bits from the 128-bit product of x and y.
-func Mul64(x, y uint64) (hi, lo uint64) {
+func mul64(x, y uint64) (hi, lo uint64) {
 	// See http://www.hackersdelight.org/MontgomeryMultiplication.pdf
 	//
 	// Montgomery Multiplication for fixed-width values:
@@ -116,7 +116,7 @@ func FMA_MUSL(x, y, z float64) float64 {
 	}
 
 	// r = x * y
-	rhi, rlo := Mul64(nx.m, ny.m)
+	rhi, rlo := mul64(nx.m, ny.m)
 	// align exponents
 	e := nx.e + ny.e
 	d := nz.e - e
