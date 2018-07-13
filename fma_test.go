@@ -32,7 +32,7 @@ import (
 // http://www.jhauser.us/arithmetic/TestFloat.html
 // The following are a random sampling of 256 from at least 180,795,884,544.
 //
-// // ./testfloat_gen -seed 24227 -level 2 f64_mulAdd | head -n 256
+// ./testfloat_gen -seed 24227 -level 2 f64_mulAdd | head -n 256
 var cases = []struct{ x, y, z, want uint64 }{
 	{0x3A600000FFFFFFF0, 0x1FB7D1145C02D065, 0x3FE000010000007E, 0x3FE000010000007E},
 	{0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000},
