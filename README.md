@@ -10,7 +10,7 @@ Work still needs to be done to include:
 - [ ] Benchmarks to compare and improve performance of the two implementations.
 - [ ] Assembly implementations that use the above software implementation as a fallback.
 	- [x] 386, amd64, amd64p32
-	- [ ] arm64
+	- [x] arm64
 	- [ ] arm
 		- [ ] Feature Detection
 	- [ ] mipsx, mips64x
