@@ -7,8 +7,8 @@ TEXT ·isFMASupported(SB),NOSPLIT,$0
 	CPUID
 	// SHR CX, $12
 	BYTE $0x66; BYTE $0xc1; BYTE $0xe9; BYTE $0x0c
-	// AND CX, $1
-	BYTE $0x66; BYTE $0x83; BYTE $0xe1; BYTE $0x01
+	// AND CL, $1
+	BYTE $0x80; BYTE $0xe1; BYTE $0x01
 	MOVB CL, ret(FP)
 	RET
 
