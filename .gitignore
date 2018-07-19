@@ -5,5 +5,6 @@
 
 # Whitelist the following extensions
 !*.go
+!*.s
 !*.md
 !.gitignore
