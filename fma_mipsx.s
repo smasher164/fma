@@ -1,8 +1,19 @@
+// +build mips mips64
+
 #include "textflag.h"
+
+#ifndef MIPS_softfloat
+	#ifdef GOMIPS64_softfloat
+		#define MIPS_softfloat GOMIPS64_softfloat
+	#endif
+	#ifdef GOMIPS_softfloat
+		#define MIPS_softfloat GOMIPS_softfloat
+	#endif
+#endif
 
 TEXT ·isFMASupported(SB),NOSPLIT,$0
 	MOVW R0, R2
-#ifndef GOMIPS_softfloat
+#ifndef MIPS_softfloat
 	// Detect Release 6. ADDI < R6 == BOVC on R6.
 	// See https://github.com/v8mips/v8mips/issues/97#issue-44761752
 	WORD $0x20420001

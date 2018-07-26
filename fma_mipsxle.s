@@ -1,11 +1,22 @@
+// +build mipsle mips64le
+
 #include "textflag.h"
 
+#ifndef MIPS_softfloat
+	#ifdef GOMIPS64_softfloat
+		#define MIPS_softfloat GOMIPS64_softfloat
+	#endif
+	#ifdef GOMIPS_softfloat
+		#define MIPS_softfloat GOMIPS_softfloat
+	#endif
+#endif
+
 TEXT ·isFMASupported(SB),NOSPLIT,$0
-	MOVV R0, R2
-#ifndef GOMIPS64_softfloat
+	MOVW R0, R2
+#ifndef MIPS_softfloat
 	// Detect Release 6. ADDI < R6 == BOVC on R6.
 	// See https://github.com/v8mips/v8mips/issues/97#issue-44761752
-	WORD $0x20420001
+	WORD $0x01004220
 	BNE R0, R2, nosupport
 	// Detect double-precision. CP1.FIR[18:17] == 1
 	MOVW FCR0, R2
@@ -14,7 +25,7 @@ TEXT ·isFMASupported(SB),NOSPLIT,$0
 	SRL $17, R2, R2
 nosupport:
 #endif
-	MOVV R2, ret(FP)
+	MOVW R2, ret(FP)
 	RET
 
 // func FMA(x, y, z float64) float64
@@ -27,7 +38,7 @@ TEXT ·FMA(SB),NOSPLIT,$0
 	MOVD z+16(FP), F2
 	// F2 = F2 + F0 * F1
 	// MADDF.D F2, F0, F1
-	WORD $0x46210098
+	WORD $0x98002146
 	MOVD F2, ret+24(FP)
 	RET
 soft:
