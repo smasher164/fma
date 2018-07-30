@@ -15,7 +15,5 @@ Work still needs to be done to include:
 		- [ ] Feature Detection
 	- [ ] mipsx, mips64x
 		- [ ] Feature Detection
-	- [ ] ppc64x
-		- [ ] Feature Detection
-	- [ ] s390x
-		- [ ] Feature Detection
+	- [x] ppc64x
+	- [x] s390x
