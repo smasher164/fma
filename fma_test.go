@@ -315,3 +315,21 @@ func TestFMA(t *testing.T) {
 		}
 	}
 }
+
+var GlobalF float64
+
+func BenchmarkBSD(b *testing.B) {
+	x := 0.0
+	for i := 0; i < b.N; i++ {
+		x = FMA_BSD(math.E, math.Pi, math.Phi)
+	}
+	GlobalF = x
+}
+
+func BenchmarkMUSL(b *testing.B) {
+	x := 0.0
+	for i := 0; i < b.N; i++ {
+		x = FMA_MUSL(math.E, math.Pi, math.Phi)
+	}
+	GlobalF = x
+}
