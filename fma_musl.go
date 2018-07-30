@@ -217,9 +217,7 @@ func FMA_MUSL(x, y, z float64) float64 {
 				c = -c
 			}
 			if r == c {
-				// min normal after rounding, underflow depends
-				// on arch behaviour which can be imitated by
-				// a double to float conversion
+				// min normal after rounding
 				fltmin := float32((0.268435448 * (1.0 / (1 << 63))) * FLT_MIN * r)
 				return float64(DBL_MIN / FLT_MIN * fltmin)
 			}
@@ -233,12 +231,6 @@ func FMA_MUSL(x, y, z float64) float64 {
 				r = float64(i)
 				// remove top bit
 				r = 2*r - c
-				{
-					// raise underflow portably, such that it
-					// cannot be optimized away
-					tiny := DBL_MIN / FLT_MIN * r
-					r += (tiny * tiny) * (r - r)
-				}
 			}
 		} else {
 			// only round once when scaled
