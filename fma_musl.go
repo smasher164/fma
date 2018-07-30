@@ -66,13 +66,6 @@ type num struct {
 	sign int32
 }
 
-func bto64(b bool) uint64 {
-	if b {
-		return 1
-	}
-	return 0
-}
-
 func normalize(x float64) num {
 	ix := math.Float64bits(x)
 	e := int32(ix >> 52)
@@ -131,7 +124,10 @@ func FMA_MUSL(x, y, z float64) float64 {
 			e = nz.e - 64
 			d -= 64
 			if d < 64 {
-				rlo = rhi<<(64-uint(d)) | rlo>>uint(d) | bto64((rlo<<(64-uint(d))) != 0)
+				rlo = rhi<<(64-uint(d)) | rlo>>uint(d)
+				if (rlo << (64 - uint(d))) != 0 {
+					rlo |= 1
+				}
 				rhi = rhi >> uint(d)
 			} else if d != 0 {
 				rlo = 1
@@ -143,7 +139,10 @@ func FMA_MUSL(x, y, z float64) float64 {
 		if d == 0 {
 			zlo = nz.m
 		} else if d < 64 {
-			zlo = nz.m>>uint(d) | bto64((nz.m<<(64-uint(d))) != 0)
+			zlo = nz.m >> uint(d)
+			if (nz.m << (64 - uint(d))) != 0 {
+				zlo |= 1
+			}
 		} else {
 			zlo = 1
 		}
@@ -156,14 +155,23 @@ func FMA_MUSL(x, y, z float64) float64 {
 	nonzero := true
 	if samesign {
 		rlo += zlo
-		rhi += zhi + bto64(rlo < zlo)
+		rhi += zhi
+		if rlo < zlo {
+			rhi += 1
+		}
 	} else {
 		t := rlo
 		rlo -= zlo
-		rhi = rhi - zhi - bto64(t < rlo)
+		rhi = rhi - zhi
+		if t < rlo {
+			rhi -= 1
+		}
 		if (rhi >> 63) != 0 {
 			rlo = -rlo
-			rhi = -rhi - bto64(rlo != 0)
+			rhi = -rhi
+			if rlo != 0 {
+				rhi -= 1
+			}
 			sign = !sign
 		}
 		nonzero = rhi != 0
@@ -173,7 +181,10 @@ func FMA_MUSL(x, y, z float64) float64 {
 	if nonzero {
 		e += 64
 		d = int32(bits.LeadingZeros64(rhi) - 1)
-		rhi = rhi<<uint(d) | rlo>>(64-uint(d)) | bto64((rlo<<uint(d)) != 0)
+		rhi = rhi<<uint(d) | rlo>>(64-uint(d))
+		if (rlo << uint(d)) != 0 {
+			rhi |= 1
+		}
 	} else if rlo != 0 {
 		d = int32(bits.LeadingZeros64(rlo) - 1)
 		if d < 0 {
@@ -232,7 +243,10 @@ func FMA_MUSL(x, y, z float64) float64 {
 		} else {
 			// only round once when scaled
 			d = 10
-			ui := rhi>>uint(d) | bto64((rhi<<(64-uint(d))) != 0)
+			ui := rhi >> uint(d)
+			if (rhi << (64 - uint(d))) != 0 {
+				ui |= 1
+			}
 			i = int64(ui << uint(d))
 			if sign {
 				i = -i
