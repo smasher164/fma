@@ -157,20 +157,20 @@ func FMA_MUSL(x, y, z float64) float64 {
 		rlo += zlo
 		rhi += zhi
 		if rlo < zlo {
-			rhi += 1
+			rhi++
 		}
 	} else {
 		t := rlo
 		rlo -= zlo
 		rhi = rhi - zhi
 		if t < rlo {
-			rhi -= 1
+			rhi--
 		}
 		if (rhi >> 63) != 0 {
 			rlo = -rlo
 			rhi = -rhi
 			if rlo != 0 {
-				rhi -= 1
+				rhi--
 			}
 			sign = !sign
 		}
@@ -196,7 +196,7 @@ func FMA_MUSL(x, y, z float64) float64 {
 		// exact +-0
 		return x*y + z
 	}
-	e -= int32(d)
+	e -= d
 
 	// convert to float64
 	// i is in [1<<62,(1<<63)-1]
@@ -236,8 +236,8 @@ func FMA_MUSL(x, y, z float64) float64 {
 				{
 					// raise underflow portably, such that it
 					// cannot be optimized away
-					tiny := float64(DBL_MIN / FLT_MIN * r)
-					r += float64(tiny*tiny) * (r - r)
+					tiny := DBL_MIN / FLT_MIN * r
+					r += (tiny * tiny) * (r - r)
 				}
 			}
 		} else {
