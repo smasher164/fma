@@ -300,18 +300,22 @@ func feq(a, b float64) bool {
 }
 
 func TestFMA(t *testing.T) {
-	for _, c := range cases {
+	for i, c := range cases {
 		x := math.Float64frombits(c.x)
 		y := math.Float64frombits(c.y)
 		z := math.Float64frombits(c.z)
 		want := math.Float64frombits(c.want)
 		got := FMA_MUSL(x, y, z)
 		if !feq(got, want) {
-			t.Errorf("FMA_MUSL(%v,%v,%v) == %v; want %v", x, y, z, got, want)
+			t.Errorf("case %d, FMA_MUSL(%v,%v,%v) == %v; want %v", i, x, y, z, got, want)
 		}
 		got = FMA_BSD(x, y, z)
 		if !feq(got, want) {
-			t.Errorf("FMA_BSD(%v,%v,%v) == %v; want %v", x, y, z, got, want)
+			t.Errorf("case %d, FMA_BSD(%v,%v,%v) == %v; want %v", i, x, y, z, got, want)
+		}
+		got = FMA_Bellard(x, y, z)
+		if !feq(got, want) {
+			t.Errorf("case %d, FMA_Bellard(%v,%v,%v) == %v; want %v", i, x, y, z, got, want)
 		}
 	}
 }
@@ -330,6 +334,14 @@ func BenchmarkMUSL(b *testing.B) {
 	x := 0.0
 	for i := 0; i < b.N; i++ {
 		x = FMA_MUSL(math.E, math.Pi, math.Phi)
+	}
+	GlobalF = x
+}
+
+func BenchmarkBellard(b *testing.B) {
+	x := 0.0
+	for i := 0; i < b.N; i++ {
+		x = FMA_Bellard(math.E, math.Pi, math.Phi)
 	}
 	GlobalF = x
 }
