@@ -325,7 +325,7 @@ var GlobalF float64
 func BenchmarkBSD(b *testing.B) {
 	x := 0.0
 	for i := 0; i < b.N; i++ {
-		x = FMA_BSD(math.E, math.Pi, math.Phi)
+		x = FMA_BSD(math.E, math.Pi, x)
 	}
 	GlobalF = x
 }
@@ -333,7 +333,7 @@ func BenchmarkBSD(b *testing.B) {
 func BenchmarkMUSL(b *testing.B) {
 	x := 0.0
 	for i := 0; i < b.N; i++ {
-		x = FMA_MUSL(math.E, math.Pi, math.Phi)
+		x = FMA_MUSL(math.E, math.Pi, x)
 	}
 	GlobalF = x
 }
@@ -341,7 +341,7 @@ func BenchmarkMUSL(b *testing.B) {
 func BenchmarkBellard(b *testing.B) {
 	x := 0.0
 	for i := 0; i < b.N; i++ {
-		x = FMA_Bellard(math.E, math.Pi, math.Phi)
+		x = FMA_Bellard(math.E, math.Pi, x)
 	}
 	GlobalF = x
 }
