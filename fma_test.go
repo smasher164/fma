@@ -82,6 +82,8 @@ func TestFma(t *testing.T) {
 	}
 }
 
+var GlobalF float64
+
 func BenchmarkFma(b *testing.B) {
 	x := 0.0
 	for i := 0; i < b.N; i++ {
