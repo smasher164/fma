@@ -1,9 +1,8 @@
 package fma
 
 import (
-	"math/bits"
-
 	. "math"
+	"math/bits"
 )
 
 const (
@@ -21,6 +20,7 @@ func zero(x uint64) uint64 {
 	// branchless:
 	// return ((x>>1 | x&1) - 1) >> 63
 }
+
 func nonzero(x uint64) uint64 {
 	if x != 0 {
 		return 1
@@ -29,11 +29,13 @@ func nonzero(x uint64) uint64 {
 	// branchless:
 	// return 1 - ((x>>1|x&1)-1)>>63
 }
+
 func shl(u1, u2 uint64, n uint) (r1, r2 uint64) {
 	r1 = u1<<n | u2>>(64-n) | u2<<(n-64)
 	r2 = u2 << n
 	return
 }
+
 func shr(u1, u2 uint64, n uint) (r1, r2 uint64) {
 	r2 = u2>>n | u1<<(64-n) | u1>>(n-64)
 	r1 = u1 >> n
@@ -65,6 +67,7 @@ func shrcompress(u1, u2 uint64, n uint) (r1, r2 uint64) {
 	}
 	return
 }
+
 func lz(u1, u2 uint64) (l int32) {
 	l = int32(bits.LeadingZeros64(u1))
 	if l == 64 {
@@ -80,6 +83,7 @@ func split(b uint64) (sign uint32, exp int32, mantissa uint64) {
 	sign = uint32(b >> 63)
 	exp = int32(b>>52) & mask
 	mantissa = b & fracMask
+
 	if exp == 0 {
 		// Normalize value if subnormal.
 		shift := uint(bits.LeadingZeros64(mantissa) - 11)
@@ -95,6 +99,7 @@ func split(b uint64) (sign uint32, exp int32, mantissa uint64) {
 // Fma returns x * y + z, computed with only one rounding.
 func Fma(x, y, z float64) float64 {
 	bx, by, bz := Float64bits(x), Float64bits(y), Float64bits(z)
+
 	// Inf or NaN or zero involved. At most one rounding will occur.
 	if x == 0.0 || y == 0.0 || z == 0.0 || bx&uvinf == uvinf || by&uvinf == uvinf {
 		return x*y + z
@@ -104,30 +109,37 @@ func Fma(x, y, z float64) float64 {
 	if bz&uvinf == uvinf {
 		return z
 	}
+
 	// Inputs are (sub)normal.
 	// Split x, y, z into sign, exponent, mantissa.
 	xs, xe, xm := split(bx)
 	ys, ye, ym := split(by)
 	zs, ze, zm := split(bz)
+
 	// Compute product p = x*y as sign, exponent, two-word mantissa.
 	// Start with exponent. "is normal" bit isn't subtracted yet.
 	pe := xe + ye - bias + 1
+
 	// pm1:pm2 is the double-word mantissa for the product p.
 	// Shift left to leave top bit in product. Effectively
 	// shifts the 106-bit product to the left by 21.
 	pm1, pm2 := bits.Mul64(xm<<10, ym<<11)
 	zm1, zm2 := zm<<10, uint64(0)
 	ps := xs ^ ys // product sign
+
 	// normalize to 62nd bit
 	is62zero := uint((^pm1 >> 62) & 1)
 	pm1, pm2 = shl(pm1, pm2, is62zero)
 	pe -= int32(is62zero)
+
 	// Swap addition operands so |p| >= |z|
 	if pe < ze || (pe == ze && (pm1 < zm1 || (pm1 == zm1 && pm2 < zm2))) {
 		ps, pe, pm1, pm2, zs, ze, zm1, zm2 = zs, ze, zm1, zm2, ps, pe, pm1, pm2
 	}
+
 	// Align significands
 	zm1, zm2 = shrcompress(zm1, zm2, uint(pe-ze))
+
 	// Compute resulting significands, normalizing if necessary.
 	var m, c uint64
 	if ps == zs {
@@ -146,6 +158,7 @@ func Fma(x, y, z float64) float64 {
 		m, pm2 = shl(pm1, pm2, uint(nz-1))
 		m |= nonzero(pm2)
 	}
+
 	// Round and break ties to even
 	if pe > 1022+bias || pe == 1022+bias && (m+1<<9)>>63 == 1 {
 		// rounded value overflows exponent range
